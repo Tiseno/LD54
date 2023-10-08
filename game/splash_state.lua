@@ -105,7 +105,6 @@ end
 
 local PICKLE_MAX = 300
 local SPAWN_PICKLE = 0.1
--- local SPAWN_PICKLE = 0.3
 
 ---@param dt number
 function Splash:update(dt)

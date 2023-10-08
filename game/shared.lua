@@ -55,6 +55,7 @@ function M.spawn_random_pickle(world, objects)
   )
 end
 
+-- Why is it called static text when the position is passed to the draw? I guess the actual text does not change
 ---@param static_text StaticText
 function M.draw_static_text(static_text, x, y)
   love.graphics.setColor(unpack(static_text.color))

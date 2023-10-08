@@ -16,6 +16,8 @@ local Jar = require "jar"
 ---@field ui_elements UiButton[]
 ---@field mouse_joint love.MouseJoint | nil
 ---@field cash number
+---@field sell_instructions_1 StaticText
+---@field sell_instructions_2 StaticText
 ---@field paused_title StaticText
 ---@field paused_1 StaticText
 ---@field paused_2 StaticText
@@ -45,6 +47,8 @@ function Main:new()
     ui_elements = {},
     mouse_joint = nil,
     cash = 20,
+    sell_instructions_1 = Shared.StaticText:new("Put jar here", Static.font_small, Color.WHITE),
+    sell_instructions_2 = Shared.StaticText:new("to sell", Static.font_small, Color.WHITE),
     paused_title = Shared.StaticText:new("Paused", Static.font_large, Color.WHITE),
     paused_1 = Shared.StaticText:new("P - Unpause", Static.font_medium, Color.WHITE),
     paused_2 = Shared.StaticText:new("Space - Restart", Static.font_medium, Color.WHITE),
@@ -167,10 +171,11 @@ function Main:mousereleased()
 end
 
 local OBJECTS_MAX = 700
+local SPAWN_PICKLE = 0.4
+
 ---@param dt number
 function Main:update(dt)
   if self.state == "RUNNING" then
-    local SPAWN_PICKLE = 0.4
     self.timer = self.timer + dt
     if self.timer > SPAWN_PICKLE then
       self.timer = self.timer - SPAWN_PICKLE
@@ -222,6 +227,12 @@ end
 
 function Main:draw()
   love.graphics.clear()
+  local window_width = love.graphics.getWidth()
+  local window_height = love.graphics.getHeight()
+
+  Shared.draw_static_text(self.sell_instructions_1, 1136, 325)
+  Shared.draw_static_text(self.sell_instructions_2, 1136, 360)
+
   for _, o in ipairs(self.objects) do
     if o.tag ~= "JAR" then
       o:draw()
@@ -243,8 +254,6 @@ function Main:draw()
   end
 
   if self.state == "PAUSED" then
-    local window_width = love.graphics.getWidth()
-    local window_height = love.graphics.getHeight()
     local title_y_offset = -200
 
     Shared.draw_static_text(self.paused_title, window_width / 2, window_height / 2 + title_y_offset)
