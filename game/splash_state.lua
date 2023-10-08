@@ -34,7 +34,7 @@ function Splash:new()
     preamble = Shared.StaticText:new("Ludum Dare 54", Static.font_small, Color.PICKLE_3),
     title = Shared.StaticText:new("Pickle Packer", Static.font_large, Color.PICKLE_2),
     sub_title = Shared.StaticText:new("", Static.font_large, Color.PICKLE_3),
-    begin_text = Shared.StaticText:new("Press any key to begin", Static.font_medium, Color.PICKLE_4),
+    begin_text = Shared.StaticText:new("Press space to begin", Static.font_medium, Color.PICKLE_4),
   }
   local window_width = love.graphics.getWidth()
   local window_height = love.graphics.getHeight()
@@ -59,15 +59,9 @@ end
 
 ---@param key love.KeyConstant
 function Splash:keypressed(key)
-  if key == "escape" then
-    -- TODO disable this
-    love.event.quit()
-    return
+  if key == "space" then
+    Global.send_message "BEGIN"
   end
-
-  -- if key == "space" then
-  Global.send_message "BEGIN"
-  -- end
 end
 
 function Splash:destroy_mouse_joint()
@@ -109,11 +103,12 @@ function Splash:mousereleased()
   self:destroy_mouse_joint()
 end
 
-local PICKLE_MAX = 200
+local PICKLE_MAX = 300
+local SPAWN_PICKLE = 0.1
+-- local SPAWN_PICKLE = 0.3
 
 ---@param dt number
 function Splash:update(dt)
-  local SPAWN_PICKLE = 0.3
   self.timer = self.timer + dt
   if self.pickle_count < PICKLE_MAX and self.timer > SPAWN_PICKLE then
     self.timer = self.timer - SPAWN_PICKLE

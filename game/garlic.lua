@@ -30,6 +30,10 @@ function Garlic:new(world, x, y)
   return setmetatable(new, self)
 end
 
+function Garlic:destroy()
+  self.fixture:destroy()
+end
+
 function Garlic:draw()
   -- TODO draw a rounded body
   local x, y, angle = self.fixture:getBody():getTransform()

@@ -38,6 +38,11 @@ function Pickle:new(world, x, y, orientation)
   return setmetatable(new, self)
 end
 
+function Pickle:destroy()
+  self.fixture:setUserData(nil)
+  self.fixture:destroy()
+end
+
 function Pickle:draw()
   -- TODO draw a rounded body
   local x, y, angle = self.fixture:getBody():getTransform()

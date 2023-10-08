@@ -13,7 +13,7 @@ local function handle_messages()
     if message == "BEGIN" then
       state = Main:new()
     end
-    if message == "SPLASH" then
+    if message == "RESTART" then
       state = Splash:new()
     end
   end

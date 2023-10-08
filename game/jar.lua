@@ -85,13 +85,19 @@ function Jar:new(world, x, y)
   return setmetatable(new, self)
 end
 
+function Jar:destroy()
+  self.polygon_fixture:setUserData(nil)
+  self.polygon_fixture:destroy()
+  self.chain_fixture:destroy()
+end
+
 -- TODO sensor for the jar detecting all pickles inside it
 
 function Jar:update()
   -- TODO calculate worth here instead of in the draw
 end
 
-function Jar:worth()
+function Jar:get_bounding_box()
   local x, y, _ = self.chain_fixture:getBody():getTransform()
 
   local shape = self.polygon_fixture:getShape() --[[@as love.PolygonShape]]
@@ -99,8 +105,12 @@ function Jar:worth()
   local x1, y1, x2, y2, x3, y3, x4, y4, x5, y5, _, _ = shape:getPoints()
   local xs = { x1, x2, x3, x4, x5 }
   local ys = { y1, y2, y3, y4, y5 }
-  local xmin, xmax = math.min(unpack(xs)), math.max(unpack(xs))
-  local ymin, ymax = math.min(unpack(ys)), math.max(unpack(ys))
+  return math.min(unpack(xs)), math.max(unpack(xs)), math.min(unpack(ys)), math.max(unpack(ys))
+end
+
+function Jar:worth()
+  local x, y = self.chain_fixture:getBody():getPosition()
+  local xmin, xmax, ymin, ymax = self:get_bounding_box()
 
   local pickle_value = 0
   local garlic_value = 0
@@ -126,6 +136,33 @@ function Jar:worth()
     end
   )
   return pickle_value + pickle_value * (25 - (garlic_value - 5) * (garlic_value - 5))
+end
+
+function Jar:get_pickles()
+  local x, y = self.chain_fixture:getBody():getPosition()
+  local xmin, xmax, ymin, ymax = self:get_bounding_box()
+
+  local current_jar_content = {}
+
+  self.world:queryBoundingBox(
+    x + xmin,
+    y + ymin,
+    x + xmax,
+    y + ymax,
+    ---@param fixture love.Fixture
+    function(fixture)
+      if self.polygon_fixture:testPoint(fixture:getBody():getPosition()) then
+        local entity = fixture:getUserData()
+        if entity and entity.get_value then
+          if entity.tag == "PICKLE" or entity.tag == "GARLIC" then
+            table.insert(current_jar_content, entity)
+          end
+        end
+      end
+      return true -- signifies that we should continue with the rest of the fixtures
+    end
+  )
+  return current_jar_content
 end
 
 function Jar:is_sellable()

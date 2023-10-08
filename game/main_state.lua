@@ -21,6 +21,15 @@ local Jar = require "jar"
 ---@field paused_2 StaticText
 local Main = {}
 
+function Main:remove_object(object)
+  for index, value in ipairs(self.objects) do
+    if value == object then
+      table.remove(self.objects, index)
+      return
+    end
+  end
+end
+
 ---@return Main
 function Main:new()
   ---@type Main
@@ -34,10 +43,9 @@ function Main:new()
     ui_elements = {},
     mouse_joint = nil,
     cash = 20,
-    sell_sensor = nil,
-    paused_title = Shared.StaticText:new("Paused", Static.font_large, Color.PICKLE_2),
-    paused_1 = Shared.StaticText:new("P - Unpause", Static.font_medium, Color.PICKLE_3),
-    paused_2 = Shared.StaticText:new("Esc - Exit", Static.font_medium, Color.PICKLE_3),
+    paused_title = Shared.StaticText:new("Paused", Static.font_large, Color.WHITE),
+    paused_1 = Shared.StaticText:new("P - Unpause", Static.font_medium, Color.WHITE),
+    paused_2 = Shared.StaticText:new("Space - Restart", Static.font_medium, Color.WHITE),
   }
 
   Shared.create_static_boundaries(new.world, new.statics)
@@ -53,7 +61,6 @@ function Main:new()
   table.insert(
     new.ui_elements,
     UiButton:new(1060, 510, 80, 30, "Sell Jar", Static.font_small, Color.GOLDEN, Color.BLACK, function()
-      print "Tried to sell"
       new.world:queryBoundingBox(
         1056,
         471,
@@ -62,13 +69,16 @@ function Main:new()
         ---@param fixture love.Fixture
         function(fixture)
           local entity = fixture:getUserData()
-          if entity and entity.tag then
-            print("found entity in sell depot " .. entity.tag)
-          end
           if entity and entity.tag == "JAR" and entity:is_sellable() then
             new.cash = new.cash + entity:worth()
-            -- TODO remove jar and its pickles from objects
-            -- Probably entity:get_pickles
+            local jar_content = entity:get_pickles()
+            for index, value in ipairs(jar_content) do
+              value:destroy()
+              Main.remove_object(new, value)
+            end
+            entity:destroy()
+            Main.remove_object(new, entity)
+            return false
           end
           return true
         end
@@ -93,14 +103,13 @@ function Main:keypressed(key)
   if key == "escape" then
     if self.state == "RUNNING" then
       self.state = "PAUSED"
-    else
-      love.event.quit()
-      return
     end
   end
 
-  if key == "space" then
-    Global.send_message "SPLASH"
+  if self.state == "PAUSED" then
+    if key == "space" then
+      Global.send_message "RESTART"
+    end
   end
 
   if key == "p" then
@@ -123,7 +132,6 @@ end
 ---@param y number
 ---@param button number
 function Main:mousepressed(x, y, button)
-  print(x, y)
   local candidate = nil
   for _, value in ipairs(self.objects) do
     if value.tag == "PICKLE" or value.tag == "GARLIC" then
@@ -156,6 +164,7 @@ function Main:mousereleased()
   self:destroy_mouse_joint()
 end
 
+local OBJECTS_MAX = 700
 ---@param dt number
 function Main:update(dt)
   if self.state == "RUNNING" then
@@ -163,7 +172,9 @@ function Main:update(dt)
     self.timer = self.timer + dt
     if self.timer > SPAWN_PICKLE then
       self.timer = self.timer - SPAWN_PICKLE
-      Shared.spawn_random_pickle(self.world, self.objects)
+      if #self.objects < OBJECTS_MAX then
+        Shared.spawn_random_pickle(self.world, self.objects)
+      end
     end
 
     if self.mouse_joint then
@@ -211,11 +222,8 @@ function Main:draw()
 
     title_y_offset = title_y_offset + self.paused_1.text_height
     Shared.draw_static_text(self.paused_1, window_width / 2, window_height / 2 + title_y_offset)
-    Shared.draw_static_text(
-      self.paused_2,
-      window_width / 2,
-      window_height / 2 + title_y_offset + self.paused_2.text_height
-    )
+    title_y_offset = title_y_offset + self.paused_2.text_height
+    Shared.draw_static_text(self.paused_2, window_width / 2, window_height / 2 + title_y_offset)
   end
 
   love.graphics.setFont(Static.font_medium)

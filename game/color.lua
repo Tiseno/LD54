@@ -48,6 +48,7 @@ local function highlight(color)
   return { color[1] + 0.1, color[2] + 0.1, color[3] + 0.1 }
 end
 
+M.WHITE = hex_color "#FFF"
 M.BLACK = hex_color "#000"
 M.BLUE = hex_color "#00F"
 M.RED = hex_color "#F00"
