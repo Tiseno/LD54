@@ -30,6 +30,8 @@ function Main:remove_object(object)
   end
 end
 
+local sell_area = { topLeftX = 1050, topLeftY = 200, bottomRightX = 1225, bottomRightY = 500 }
+
 ---@return Main
 function Main:new()
   ---@type Main
@@ -62,10 +64,10 @@ function Main:new()
     new.ui_elements,
     UiButton:new(1060, 510, 80, 30, "Sell Jar", Static.font_small, Color.GOLDEN, Color.BLACK, function()
       new.world:queryBoundingBox(
-        1056,
-        471,
-        1230,
-        504,
+        sell_area.topLeftX,
+        sell_area.topLeftY,
+        sell_area.bottomRightX,
+        sell_area.bottomRightY,
         ---@param fixture love.Fixture
         function(fixture)
           local entity = fixture:getUserData()
@@ -181,10 +183,38 @@ function Main:update(dt)
       self.mouse_joint:setTarget(love.mouse.getPosition())
     end
 
+    for _, o in ipairs(self.objects) do
+      if o.update then
+        o:update()
+      end
+    end
+
     for _, o in ipairs(self.ui_elements) do
       o:update()
     end
 
+    self.world:queryBoundingBox(
+      sell_area.topLeftX,
+      sell_area.topLeftY,
+      sell_area.bottomRightX,
+      sell_area.bottomRightY,
+      ---@param fixture love.Fixture
+      function(fixture)
+        local entity = fixture:getUserData()
+        if entity and entity.tag == "JAR" then
+          local x, y = entity:get_body():getPosition()
+          if
+            sell_area.topLeftX < x
+            and x < sell_area.bottomRightX
+            and sell_area.topLeftY < y
+            and y < sell_area.bottomRightY
+          then
+            entity:set_sellable()
+          end
+        end
+        return true
+      end
+    )
     self.timer = self.timer + dt
     self.world:update(dt)
   end

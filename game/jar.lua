@@ -9,6 +9,7 @@ local Static = require "static"
 ---@field chain_fixture love.Fixture
 ---@field polygon_fixture love.Fixture
 ---@field highlighted boolean
+---@field sellable boolean
 ---@field width number
 ---@field height number
 local Jar = {}
@@ -77,6 +78,7 @@ function Jar:new(world, x, y)
     chain_fixture = chain_fixture,
     polygon_fixture = polygon_fixture,
     highlighted = false,
+    sellable = false,
     width = WIDTH,
     height = HEIGHT,
   }
@@ -95,6 +97,8 @@ end
 
 function Jar:update()
   -- TODO calculate worth here instead of in the draw
+  -- This is a hack, we always reset sellable in the update and rely on main state to update if it is sellable or not
+  self.sellable = false
 end
 
 function Jar:get_bounding_box()
@@ -165,13 +169,12 @@ function Jar:get_pickles()
   return current_jar_content
 end
 
+function Jar:set_sellable()
+  self.sellable = true
+end
+
 function Jar:is_sellable()
-  local _, _, angle = self.chain_fixture:getBody():getTransform()
-  local normalized_angle = angle % math.pi
-  if normalized_angle > math.pi / 2 then
-    normalized_angle = normalized_angle - math.pi
-  end
-  return -0.1 < normalized_angle and normalized_angle < 0.1
+  return self.sellable
 end
 
 function Jar:draw()
@@ -200,8 +203,8 @@ function Jar:draw()
   love.graphics.translate(points[1], points[2])
   love.graphics.setFont(Static.font_small)
 
-  if self:is_sellable() then
-    love.graphics.setColor(unpack(Color.GOLDEN))
+  if self.sellable then
+    love.graphics.setColor(unpack(Color.GREEN))
   else
     love.graphics.setColor(unpack(Color.RED))
   end
