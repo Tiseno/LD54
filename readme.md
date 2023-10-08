@@ -1,5 +1,7 @@
 # Pickle Packer
-Packing pickles is no joke. Speed, dexterity, and constitution are all needed characteristics for a successful professional pickle packer. Pack and sell as many pickle jars as possible before your pickle packing workshop runs out of space.
+Packing pickles is no joke. Especially when space is limited in the pickle packing workshop.
+Speed, dexterity, and constitution are all needed characteristics for a successful professional pickle packer.
+Pack and sell as many pickle jars as possible before your pickle packing workshop runs out of space.
 
 ## Controls
 Drag jars and pickles using your mouse. P to pause.
@@ -37,7 +39,6 @@ zip -r ../dist/pickle-packer.love *
 
 ### Windows
 ```
-<<<<<<< HEAD
 cat ~/Downloads/love-11.4-win64/lovec.exe dist/pickle-packer.love > dist64/pickle-packer64.exe
 cp ~/Downloads/love-11.4-win64/SDL2.dll ~/Downloads/love-11.4-win64/OpenAL32.dll ~/Downloads/love-11.4-win64/license.txt ~/Downloads/love-11.4-win64/love.dll ~/Downloads/love-11.4-win64/lua51.dll ~/Downloads/love-11.4-win64/mpg123.dll ~/Downloads/love-11.4-win64/msvcp120.dll ~/Downloads/love-11.4-win64/msvcr120.dll dist64/
 cd dist64/
